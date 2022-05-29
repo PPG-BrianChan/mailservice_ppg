@@ -1,0 +1,135 @@
+_schema-version: "3.1"
+ID: mailservice
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: mailservice-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: mailservice-db
+  - name: mailservice-destination-service
+  - name: uaa_mailservice
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm-ci
+- name: mailservice-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: mailservice-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: mailservice-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: mailservice-destination-service
+    parameters:
+      content-target: true
+  - name: mailservice_html_repo_host
+    parameters:
+      service-key:
+        name: mailservice_html_repo_host-key
+  - name: uaa_mailservice
+    parameters:
+      service-key:
+        name: uaa_mailservice-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: mailservice_approuter_mailservice_html_repo_host
+          ServiceInstanceName: mailservice-html5-app-host-service
+          ServiceKeyName: mailservice_html_repo_host-key
+          sap.cloud.service: mailservice_approuter
+        - Authentication: OAuth2UserTokenExchange
+          Name: mailservice_approuter_uaa_mailservice
+          ServiceInstanceName: mailservice-xsuaa-service
+          ServiceKeyName: uaa_mailservice-key
+          sap.cloud.service: mailservice_approuter
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: mailservice-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: mailservice_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - mailserviceui.zip
+      name: mailserviceui
+      target-path: resources/
+- name: mailserviceui
+  type: html5
+  path: app/mailserviceui
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: mailservice-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+  properties:
+    hdi-service-name: ${service-name}
+- name: mailservice-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            Name: srvurl
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://crossfunctional-dev-org-mailservice-mailservice-srv.cfapps.eu10.hana.ondemand.com
+            forwardAuthToken: true
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: mailservice-destination-service
+    service-plan: lite
+- name: mailservice_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: mailservice-html5-app-host-service
+    service-plan: app-host
+- name: uaa_mailservice
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: mailservice-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx -p @sap/cds-dk cds build --production
