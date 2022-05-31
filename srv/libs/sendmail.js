@@ -1,24 +1,24 @@
 const cdsapi = require('@sapmentors/cds-scp-api');
 
-module.exports = async function (result) {
+module.exports = async function (data,) {
     console.log("Preparing mail content");
     const mailcontent = {
         message: {
-            subject: result.subject,
+            subject: data.subject,
             body: {
                 contentType: 'Text',
-                content: result.body
+                content: data.body
             },
             toRecipients: [
                 {
                     emailAddress: {
-                        address: result.recipient
+                        address: data.recipient
                     }
                 }
             ],
             from: {
                 emailAddress: {
-                    address: result.sender
+                    address: data.sender
                 }
             }
         },
@@ -27,9 +27,9 @@ module.exports = async function (result) {
 
     //Add attachment
     console.log("Adding attachments");
-    if(result.attachments){
+    if (data.attachments) {
         var objlist = [];
-        const attachmententries = result.attachments.entries();
+        const attachmententries = data.attachments.entries();
 
         for (let i of attachmententries) {
             objlist.push({
@@ -42,23 +42,14 @@ module.exports = async function (result) {
         Object.assign(mailcontent.message, { attachments: objlist });
     }
 
-    try {
-        console.log("Preparing to send mail");
-        const service = await cdsapi.connect.to("Microsoft_Graph_Mail_API");
-        await service.run({
-            // url: "/v1.0/me/sendmail",
-            url: `/v1.0/users/${result.sender}/sendmail`,
-            method: "post",
-            headers: {
-                'content-type': 'application/json'
-            },
-            data: mailcontent,
-        })
-        console.log("Mail sent successfully");
-        return;
-    }
-
-    catch (error) {
-        throw new Error(error.message);
-    }
+    console.log("Preparing to send mail");
+    const service = await cdsapi.connect.to("Microsoft_Graph_Mail_API");
+    return await service.run({
+        url: `/v1.0/users/${data.sender}/sendmail`,
+        method: "post",
+        headers: {
+            'content-type': 'application/json'
+        },
+        data: mailcontent,
+    })
 }

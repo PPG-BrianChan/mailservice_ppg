@@ -16,6 +16,7 @@ service ms_adminService {
     }
 
     entity attachments  as projection on ms.Attachments
+    entity whitelists as projection on ms.whitelists;
 
 }
 
@@ -25,4 +26,9 @@ service APIService
     @path     : '/mail-api'
     @insertonly
     entity mailrequests as projection on ms.mailrequests;
+    @insertonly
+    entity attachments  as projection on ms.Attachments
+    @readonly
+    entity whitelists as projection on ms.whitelists;
+    action mass_email (mailrequests: ms.multirecipient);
 }

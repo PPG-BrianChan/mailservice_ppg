@@ -69,9 +69,23 @@ modules:
       - mailserviceui.zip
       name: mailserviceui
       target-path: resources/
+    - artifacts:
+      - whitelistui.zip
+      name: whitelistui
+      target-path: resources/
 - name: mailserviceui
   type: html5
   path: app/mailserviceui
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: whitelistui
+  type: html5
+  path: app/whitelistui
   build-parameters:
     build-result: dist
     builder: custom

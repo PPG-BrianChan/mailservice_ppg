@@ -8,7 +8,7 @@ GET http://localhost:4004/ms-admin/mailrequests
 
 ### ------------------------------------------------------------------------
 # Create entity
-POST http://localhost:4004/ms-admin/mailrequests
+POST http://localhost:4004/api/mailrequests
 Content-Type: application/json
 
 {
@@ -31,18 +31,25 @@ Content-Type: application/json
 }
 
 ### ------------------------------------------------------------------------
-# event
-POST http://localhost:4004/ms-admin/myaction
+# Mass create entity
+POST http://localhost:4004/api/mass_email
 Content-Type: application/json
 
 {
-    "sender" : "SAPCOEBTPGeneral@ppg.com",
-    "recipient" : "cchan@ppg.com",
-    "subject" : "Test POST",
-    "body" : "This is test mail from http client",
-    "status" : "C"
+    "mailrequests": {
+        "sender": "sapcoebtpgeneral@ppg.com",
+        "multiRecipient": [
+            { "email": "cchan@ppg.com" },
+            { "email": "chiewvoon93@gmail.com" }
+        ],
+        "subject": "DO NOT REPLY: TEST",
+        "body": "This is test email body for multi recipients",
+        "attachments": [
+            { "name": "attachment-1.txt", "contentType": "text/plain", "contentBytes": "dGhpcyBpcyAxc3QgYXR0YWNobWVudCBhcyB0ZXh0" },
+            { "name": "attachment-2.txt", "contentType": "text/plain", "contentBytes": "dGhpcyBpcyAybmQgYXR0YWNobWVudCBhcyB0ZXh0" }
+        ]
+    }
 }
-
 ### ------------------------------------------------------------------------
 # Create entity with attachment
 POST http://localhost:4004/ms-admin/mailrequests

@@ -1,9 +1,6 @@
 using ms_adminService as adminService from './mailservice';
 
-// annotate as.mailrequests with @odata.draft.enabled : true;
-
 //Mail request annotation
-
 annotate adminService.mailrequests with {
     ID          @title : '{i18n>ID}'
                 @readonly;
@@ -16,6 +13,8 @@ annotate adminService.mailrequests with {
                 @UI.MultiLineText;
     attachments @title : '{i18n>Attachments}';
     status      @title : '{i18n>Status}'
+                @readonly;
+    message     @title : '{i18n>Message}'
                 @readonly;
 };
 
@@ -36,17 +35,13 @@ annotate adminService.mailrequests with @UI : {
 
     LineItem            : [
         {
-            $Type  : 'UI.DataFieldForAction',
-            Action : 'ms_adminService.sendmail',
-            Label  : 'Resend Mail',
-            Inline: true,
-            ![@UI.Hidden] : sendHidden,     
+            $Type             : 'UI.DataFieldForAction',
+            Action            : 'ms_adminService.sendmail',
+            Label             : 'Resend Mail',
+            Inline            : true,
+            ![@UI.Hidden]     : sendHidden,
             ![@UI.Importance] : #High
         },
-        // {
-        //     $Type : 'UI.DataField',
-        //     Value : req_no
-        // },
         {
             $Type : 'UI.DataField',
             Value : sender
@@ -64,14 +59,18 @@ annotate adminService.mailrequests with @UI : {
             Value : body
         },
         {
-            $Type : 'UI.DataField',
-            Value : status,
-            Criticality : statusCriticality,
+            $Type             : 'UI.DataField',
+            Value             : status,
+            Criticality       : statusCriticality,
             ![@UI.Importance] : #High
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : message
         },
     ],
 
-        Facets              : [
+    Facets              : [
         {
             $Type  : 'UI.ReferenceFacet',
             Label  : '{i18n>Details}',
@@ -94,7 +93,8 @@ annotate adminService.mailrequests with @UI : {
         {Value : recipient},
         {Value : subject},
         {Value : body},
-        {Value : status}
+        {Value : status},
+        {Value : message}
     ]},
 
     FieldGroup #Admin   : {Data : [
@@ -113,29 +113,31 @@ annotate adminService.attachments with {
     ID           @title : '{i18n>ID}'
                  @readonly;
     name         @title : '{i18n>AttachmentName}';
-    contentType  @title: '{i18n>AttachmentType}';
+    contentType  @title : '{i18n>AttachmentType}';
     contentBytes @UI.Hidden
 };
 
-annotate adminService.attachments with @UI:{
-    LineItem :[
-         {
+annotate adminService.attachments with @UI : {
+    HeaderInfo                    : {
+        TypeName       : '{i18n>Attachment}',
+        TypeNamePlural : '{i18n>Attachments}'
+    },
+    LineItem                      : [
+        {
             $Type : 'UI.DataField',
             Value : name
         },
-         {
+        {
             $Type : 'UI.DataField',
             Value : contentType
         }
     ],
 
-    Facets              : [
-        {
-            $Type  : 'UI.ReferenceFacet',
-            Label  : '{i18n>AttachmentDetails}',
-            Target : '@UI.FieldGroup#AttachmentDetails'
-        }
-    ],
+    Facets                        : [{
+        $Type  : 'UI.ReferenceFacet',
+        Label  : '{i18n>AttachmentDetails}',
+        Target : '@UI.FieldGroup#AttachmentDetails'
+    }],
     FieldGroup #AttachmentDetails : {Data : [
         {Value : name},
         {Value : contentType},
@@ -143,3 +145,52 @@ annotate adminService.attachments with @UI:{
     ]}
 
 };
+
+
+//Whitelist annotation
+annotate adminService.whitelists with @odata.draft.enabled : true {
+    ID          @UI.Hidden;
+    addressArea @title : '{i18n>AddressArea}';
+};
+
+annotate adminService.whitelists with @(UI.LineItem : [{
+    $Type : 'UI.DataField',
+    Value : addressArea,
+}, ]);
+
+annotate adminService.whitelists with @(
+    UI.HeaderInfo                  : {
+        TypeName       : 'Address Area',
+        TypeNamePlural : 'Address Areas',
+        ImageUrl       : 'sap-icon://customer-and-contacts',
+    },
+    UI.FieldGroup #GeneratedGroup1 : {
+        $Type : 'UI.FieldGroupType',
+        Data  : [{
+            $Type : 'UI.DataField',
+            Value : addressArea,
+        }, ],
+    },
+    UI.FieldGroup #Admin           : {
+        $Type : 'UI.FieldGroupType',
+        Data  : [
+            {Value : createdBy},
+            {Value : createdAt},
+            {Value : modifiedBy},
+            {Value : modifiedAt}
+        ]
+    },
+    UI.Facets                      : [
+        {
+            $Type  : 'UI.ReferenceFacet',
+            ID     : 'GeneratedFacet1',
+            Label  : 'General Information',
+            Target : '@UI.FieldGroup#GeneratedGroup1',
+        },
+        {
+            $Type  : 'UI.ReferenceFacet',
+            Label  : 'Admin Information',
+            Target : '@UI.FieldGroup#Admin'
+        }
+    ]
+);
