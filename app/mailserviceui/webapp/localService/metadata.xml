@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="ms_adminService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="mailrequests" EntityType="ms_adminService.mailrequests">
+                    <NavigationPropertyBinding Path="attachments" Target="attachments"/>
+                </EntitySet>
+                <EntitySet Name="attachments" EntityType="ms_adminService.attachments">
+                    <NavigationPropertyBinding Path="parent" Target="mailrequests"/>
+                </EntitySet>
+            </EntityContainer>
+            <EntityType Name="mailrequests">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="sender" Type="Edm.String"/>
+                <Property Name="recipient" Type="Edm.String"/>
+                <Property Name="subject" Type="Edm.String"/>
+                <Property Name="body" Type="Edm.String"/>
+                <NavigationProperty Name="attachments" Type="Collection(ms_adminService.attachments)" Partner="parent">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <Property Name="status" Type="Edm.String" MaxLength="1"/>
+            </EntityType>
+            <EntityType Name="attachments">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="parent_ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <NavigationProperty Name="parent" Type="ms_adminService.mailrequests" Partner="attachments">
+                    <ReferentialConstraint Property="parent_ID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+                <Property Name="parent_ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="name" Type="Edm.String" MaxLength="200"/>
+                <Property Name="contentType" Type="Edm.String" MaxLength="30"/>
+                <Property Name="contentBytes" Type="Edm.String"/>
+            </EntityType>
+            <Action Name="sendmail" IsBound="true">
+                <Parameter Name="in" Type="ms_adminService.mailrequests"/>
+            </Action>
+            <Annotations Target="ms_adminService.mailrequests">
+                <Annotation Term="UI.HeaderInfo">
+                    <Record Type="UI.HeaderInfoType">
+                        <PropertyValue Property="TypeName" String="{i18n>Request}"/>
+                            <PropertyValue Property="TypeNamePlural" String="{i18n>Requests}"/>
+                                <PropertyValue Property="Title">
+                                    <Record Type="UI.DataField">
+                                        <PropertyValue Property="Value" Path="ID"/>
+                                    </Record>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <Record Type="UI.DataField">
+                                        <PropertyValue Property="Value" Path="subject"/>
+                                    </Record>
+                                </PropertyValue>
+                            </Record>
+                        </Annotation>
+                        <Annotation Term="UI.SelectionFields">
+                            <Collection>
+                                <PropertyPath>sender</PropertyPath>
+                                <PropertyPath>recipient</PropertyPath>
+                                <PropertyPath>subject</PropertyPath>
+                                <PropertyPath>status</PropertyPath>
+                            </Collection>
+                        </Annotation>
+                        <Annotation Term="UI.LineItem">
+                            <Collection>
+                                <Record Type="UI.DataFieldForAction">
+                                    <PropertyValue Property="Action" String="ms_adminService.sendmail"/>
+                                    <PropertyValue Property="Label" String="Send Mail"/>
+                                    <PropertyValue Property="Inline" Bool="true"/>
+                                    <PropertyValue Property="Enabled" Bool="true"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="sender"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="recipient"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="subject"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="body"/>
+                                    <PropertyValue Property="MultiLineText" Bool="true"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="attachment"/>
+                                </Record>
+                                <Record Type="UI.DataField">
+                                    <PropertyValue Property="Value" Path="status"/>
+                                </Record>
+                            </Collection>
+                        </Annotation>
+                        <Annotation Term="UI.Facets">
+                            <Collection>
+                                <Record Type="UI.ReferenceFacet">
+                                    <PropertyValue Property="Label" String="{i18n>Details}"/>
+                                        <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Details"/>
+                                    </Record>
+                                    <Record Type="UI.ReferenceFacet">
+                                        <PropertyValue Property="Label" String="{i18n>Admin}"/>
+                                            <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Admin"/>
+                                        </Record>
+                                        <Record Type="UI.ReferenceFacet">
+                                            <PropertyValue Property="Label" String="{i18n>Attachments}"/>
+                                                <PropertyValue Property="Target" AnnotationPath="attachments/@UI.LineItem"/>
+                                            </Record>
+                                        </Collection>
+                                    </Annotation>
+                                    <Annotation Term="UI.FieldGroup" Qualifier="Details">
+                                        <Record Type="UI.FieldGroupType">
+                                            <PropertyValue Property="Data">
+                                                <Collection>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="sender"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="recipient"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="subject"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="body"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="attachment"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="status"/>
+                                                    </Record>
+                                                </Collection>
+                                            </PropertyValue>
+                                        </Record>
+                                    </Annotation>
+                                    <Annotation Term="UI.FieldGroup" Qualifier="Admin">
+                                        <Record Type="UI.FieldGroupType">
+                                            <PropertyValue Property="Data">
+                                                <Collection>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="ID"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="createdBy"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="createdAt"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="modifiedBy"/>
+                                                    </Record>
+                                                    <Record Type="UI.DataField">
+                                                        <PropertyValue Property="Value" Path="modifiedAt"/>
+                                                    </Record>
+                                                </Collection>
+                                            </PropertyValue>
+                                        </Record>
+                                    </Annotation>
+                                </Annotations>
+                                <Annotations Target="ms_adminService.EntityContainer/mailrequests">
+                                    <Annotation Term="Capabilities.InsertRestrictions">
+                                        <Record Type="Capabilities.InsertRestrictionsType">
+                                            <PropertyValue Property="Insertable" Bool="true"/>
+                                        </Record>
+                                    </Annotation>
+                                </Annotations>
+                                <Annotations Target="ms_adminService.mailrequests/ID">
+                                    <Annotation Term="Common.Label" String="{i18n>ID}"/>
+                                        <Annotation Term="Core.Computed" Bool="true"/>
+                                    </Annotations>
+                                    <Annotations Target="ms_adminService.mailrequests/createdAt">
+                                        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                        <Annotation Term="Core.Immutable" Bool="true"/>
+                                        <Annotation Term="Core.Computed" Bool="true"/>
+                                        <Annotation Term="Common.Label" String="{i18n>CreatedAt}"/>
+                                        </Annotations>
+                                        <Annotations Target="ms_adminService.mailrequests/createdBy">
+                                            <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                            <Annotation Term="Core.Immutable" Bool="true"/>
+                                            <Annotation Term="Core.Computed" Bool="true"/>
+                                            <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                <Annotation Term="Common.Label" String="{i18n>CreatedBy}"/>
+                                                </Annotations>
+                                                <Annotations Target="ms_adminService.mailrequests/modifiedAt">
+                                                    <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                                    <Annotation Term="Common.Label" String="{i18n>ChangedAt}"/>
+                                                    </Annotations>
+                                                    <Annotations Target="ms_adminService.mailrequests/modifiedBy">
+                                                        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                        <Annotation Term="Core.Computed" Bool="true"/>
+                                                        <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                            <Annotation Term="Common.Label" String="{i18n>ChangedBy}"/>
+                                                            </Annotations>
+                                                            <Annotations Target="ms_adminService.mailrequests/sender">
+                                                                <Annotation Term="Common.Label" String="{i18n>Sender}"/>
+                                                                </Annotations>
+                                                                <Annotations Target="ms_adminService.mailrequests/recipient">
+                                                                    <Annotation Term="Common.Label" String="{i18n>Recipient}"/>
+                                                                    </Annotations>
+                                                                    <Annotations Target="ms_adminService.mailrequests/subject">
+                                                                        <Annotation Term="Common.Label" String="{i18n>Subject}"/>
+                                                                        </Annotations>
+                                                                        <Annotations Target="ms_adminService.mailrequests/body">
+                                                                            <Annotation Term="UI.=" String="@UI.MultiLineText"/>
+                                                                            <Annotation Term="Common.Label" String="{i18n>Body}"/>
+                                                                            </Annotations>
+                                                                            <Annotations Target="ms_adminService.mailrequests/attachments">
+                                                                                <Annotation Term="Common.Label" String="{i18n>Attachments}"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="ms_adminService.mailrequests/status">
+                                                                                    <Annotation Term="Common.Label" String="{i18n>Status}"/>
+                                                                                    </Annotations>
+                                                                                    <Annotations Target="ms_adminService.attachments">
+                                                                                        <Annotation Term="UI.LineItem">
+                                                                                            <Collection>
+                                                                                                <Record Type="UI.DataField">
+                                                                                                    <PropertyValue Property="Value" Path="name"/>
+                                                                                                </Record>
+                                                                                                <Record Type="UI.DataField">
+                                                                                                    <PropertyValue Property="Value" Path="contentType"/>
+                                                                                                </Record>
+                                                                                                <Record Type="UI.DataField">
+                                                                                                    <PropertyValue Property="Value" Path="contentBytes"/>
+                                                                                                </Record>
+                                                                                            </Collection>
+                                                                                        </Annotation>
+                                                                                        <Annotation Term="UI.Facets">
+                                                                                            <Collection>
+                                                                                                <Record Type="UI.ReferenceFacet">
+                                                                                                    <PropertyValue Property="Label" String="{i18n>AttachmentDetails}"/>
+                                                                                                        <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#AttachmentDetails"/>
+                                                                                                    </Record>
+                                                                                                </Collection>
+                                                                                            </Annotation>
+                                                                                            <Annotation Term="UI.FieldGroup" Qualifier="AttachmentDetails">
+                                                                                                <Record Type="UI.FieldGroupType">
+                                                                                                    <PropertyValue Property="Data">
+                                                                                                        <Collection>
+                                                                                                            <Record Type="UI.DataField">
+                                                                                                                <PropertyValue Property="Value" Path="name"/>
+                                                                                                            </Record>
+                                                                                                            <Record Type="UI.DataField">
+                                                                                                                <PropertyValue Property="Value" Path="contentType"/>
+                                                                                                            </Record>
+                                                                                                            <Record Type="UI.DataField">
+                                                                                                                <PropertyValue Property="Value" Path="contentBytes"/>
+                                                                                                            </Record>
+                                                                                                        </Collection>
+                                                                                                    </PropertyValue>
+                                                                                                </Record>
+                                                                                            </Annotation>
+                                                                                        </Annotations>
+                                                                                        <Annotations Target="ms_adminService.attachments/ID">
+                                                                                            <Annotation Term="Common.Label" String="{i18n>ID}"/>
+                                                                                                <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="ms_adminService.attachments/createdAt">
+                                                                                                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                                                <Annotation Term="Core.Immutable" Bool="true"/>
+                                                                                                <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                                <Annotation Term="Common.Label" String="{i18n>CreatedAt}"/>
+                                                                                                </Annotations>
+                                                                                                <Annotations Target="ms_adminService.attachments/createdBy">
+                                                                                                    <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                                                    <Annotation Term="Core.Immutable" Bool="true"/>
+                                                                                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                                    <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                                                                        <Annotation Term="Common.Label" String="{i18n>CreatedBy}"/>
+                                                                                                        </Annotations>
+                                                                                                        <Annotations Target="ms_adminService.attachments/modifiedAt">
+                                                                                                            <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                                                            <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                                            <Annotation Term="Common.Label" String="{i18n>ChangedAt}"/>
+                                                                                                            </Annotations>
+                                                                                                            <Annotations Target="ms_adminService.attachments/modifiedBy">
+                                                                                                                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                                                                                <Annotation Term="Core.Computed" Bool="true"/>
+                                                                                                                <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                                                                                    <Annotation Term="Common.Label" String="{i18n>ChangedBy}"/>
+                                                                                                                    </Annotations>
+                                                                                                                    <Annotations Target="ms_adminService.attachments/name">
+                                                                                                                        <Annotation Term="Common.Label" String="{i18n>AttachmentName}"/>
+                                                                                                                        </Annotations>
+                                                                                                                        <Annotations Target="ms_adminService.attachments/contentType">
+                                                                                                                            <Annotation Term="Common.Label" String="{i18n>AttachmentType}"/>
+                                                                                                                            </Annotations>
+                                                                                                                            <Annotations Target="ms_adminService.attachments/contentBytes">
+                                                                                                                                <Annotation Term="Common.Label" String="{i18n>AttachmentContent}"/>
+                                                                                                                                </Annotations>
+                                                                                                                            </Schema>
+                                                                                                                        </edmx:DataServices>
+                                                                                                                    </edmx:Edmx>

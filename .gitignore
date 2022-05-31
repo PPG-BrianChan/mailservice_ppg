@@ -8,7 +8,7 @@ gen/
 node_modules/
 target/
 #app folder ignore
-app/
+#app/
 
 # Web IDE, App Studio
 .che/

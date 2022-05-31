@@ -1,0 +1,1 @@
+using ms_adminService as service from '../../srv/mailservice';
