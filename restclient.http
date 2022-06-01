@@ -7,6 +7,15 @@ GET http://localhost:4004/ms-admin/$metadata
 GET http://localhost:4004/ms-admin/mailrequests
 
 ### ------------------------------------------------------------------------
+# Create whitelist
+POST http://localhost:4004/api/whitelists
+Content-Type: application/json
+
+{
+    "addressArea" : "*ppg.com"
+}
+
+### ------------------------------------------------------------------------
 # Create entity
 POST http://localhost:4004/api/mailrequests
 Content-Type: application/json

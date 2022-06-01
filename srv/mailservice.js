@@ -18,7 +18,7 @@ module.exports = (srv) => {
     srv.before(['CREATE'], 'mailrequests', async (req) => {
         console.log("Before create event");
         const whitelists_entries = await getWhiteLists(whitelists);
-        const isAllowed = await checkRecipient(whitelists_entries, req.recipient);
+        const isAllowed = await checkRecipient(whitelists_entries, req.data.recipient);
         if (isAllowed) {
             try {
                 await sendmail(req.data);

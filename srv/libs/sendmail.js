@@ -1,6 +1,6 @@
 const cdsapi = require('@sapmentors/cds-scp-api');
 
-module.exports = async function (data,) {
+module.exports = async function (data) {
     console.log("Preparing mail content");
     const mailcontent = {
         message: {
