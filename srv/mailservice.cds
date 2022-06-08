@@ -1,7 +1,6 @@
 using mailservice as ms from '../db/data-model';
 
-service ms_adminService {
-    @requires                : 'EmailServiceAdmin'
+service ms_adminService @(requires : 'EmailServiceAdmin') {
     @Capabilities.Insertable : true
     entity mailrequests as projection on ms.mailrequests
 
@@ -15,18 +14,19 @@ service ms_adminService {
     }
 
     entity attachments  as projection on ms.Attachments
-    entity whitelists as projection on ms.whitelists;
+    entity whitelists   as projection on ms.whitelists;
 
 }
 
-service APIService
-{
-    @requires : 'system-user'
+service APIService @(requires : 'system-user') {
     @insertonly
     entity mailrequests as projection on ms.mailrequests;
+
     @insertonly
     entity attachments  as projection on ms.Attachments
+
     @readonly
-    entity whitelists as projection on ms.whitelists;
-    action mass_email (mailrequests: ms.multirecipient);
+    entity whitelists   as projection on ms.whitelists;
+
+    action mass_email(mailrequests : ms.multirecipient);
 }
