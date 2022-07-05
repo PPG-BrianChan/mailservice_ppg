@@ -18,10 +18,13 @@ module.exports = (srv) => {
     srv.before(['CREATE'], 'mailrequests', async (req) => {
         console.log("Before create event");
         const whitelists_entries = await getWhiteLists(whitelists);
+        console.log("Processing mail to:",req.data.recipient);
         const isAllowed = await checkRecipient(whitelists_entries, req.data.recipient);
         if (isAllowed) {
             try {
                 await sendmail(req.data);
+                req.data.status = 'C';
+                req.data.message = successMessage;
             }
             catch (error) {
                 console.log("Error in sending mail:", error.response.data.error.message)
@@ -31,9 +34,12 @@ module.exports = (srv) => {
             }
         } else {
             console.log("Error in sending mail:", blockedMessage)
-            req.data.Status = 'O';
-            req.data.message = blockedMessage
+            req.data.status = 'O';
+            req.data.message = blockedMessage;
+            return;
         }
+
+        console.log("After sending mail: ",req.data);
     })
 
     //For failed mails -> Action sendmail

@@ -103,6 +103,8 @@ resources:
     hdi-service-name: ${service-name}
 - name: mailservice-destination-service
   type: org.cloudfoundry.managed-service
+  requires:
+    - name: srv-api
   parameters:
     config:
       HTML5Runtime_enabled: true
@@ -115,10 +117,11 @@ resources:
             Type: HTTP
             URL: https://ui5.sap.com
           - Authentication: NoAuthentication
-            Name: srvurl
+            Name: mailservice-endpoint
             ProxyType: Internet
             Type: HTTP
-            URL: https://crossfunctional-dev-org-mailservice-mailservice-srv.cfapps.eu10.hana.ondemand.com
+            URL: ~{srv-api/srv-url}
+            HTML5.DynamicDestination: true
             forwardAuthToken: true
           existing_destinations_policy: update
       version: 1.0.0

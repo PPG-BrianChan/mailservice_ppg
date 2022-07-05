@@ -11,7 +11,7 @@ entity mailrequests : cuid, managed {
     subject : String;
     body : String;
     attachments : Composition of many Attachments on attachments.parent = $self;
-    status : String(1) default 'O';
+    status : String(1);
     message: String;
     virtual sendHidden        : Boolean;
     virtual statusCriticality : Integer;
