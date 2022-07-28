@@ -9,6 +9,7 @@ entity mailrequests : cuid, managed {
     sender : String;
     recipient : String;
     subject : String;
+    type: String;
     body : String;
     attachments : Composition of many Attachments on attachments.parent = $self;
     status : String(1);
@@ -34,6 +35,7 @@ type multirecipient {
         email : String;
     };
     subject : String;
+    type: String;
     body : String;
     attachments : many {
         name : String(200);

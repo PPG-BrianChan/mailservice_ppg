@@ -6,7 +6,7 @@ module.exports = async function (data) {
         message: {
             subject: data.subject,
             body: {
-                contentType: 'Text',
+                contentType: data.type,
                 content: data.body
             },
             toRecipients: [

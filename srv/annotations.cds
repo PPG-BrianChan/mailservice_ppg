@@ -9,6 +9,7 @@ annotate adminService.mailrequests with {
     sender      @title : '{i18n>Sender}';
     recipient   @title : '{i18n>Recipient}';
     subject     @title : '{i18n>Subject}';
+    type        @title : '{i18n>Type}';
     body        @title : '{i18n>Body}'
                 @UI.MultiLineText;
     attachments @title : '{i18n>Attachments}';
@@ -56,6 +57,10 @@ annotate adminService.mailrequests with @UI : {
         },
         {
             $Type : 'UI.DataField',
+            Value : type
+        },
+        {
+            $Type : 'UI.DataField',
             Value : body
         },
         {
@@ -92,6 +97,7 @@ annotate adminService.mailrequests with @UI : {
         {Value : sender},
         {Value : recipient},
         {Value : subject},
+        {Value : type},
         {Value : body},
         {Value : status},
         {Value : message}

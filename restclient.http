@@ -52,6 +52,7 @@ Content-Type: application/json
             { "email": "chiewvoon93@gmail.com" }
         ],
         "subject": "DO NOT REPLY: TEST",
+        "type":"HTML",
         "body": "This is test email body for multi recipients",
         "attachments": [
             { "name": "attachment-1.txt", "contentType": "text/plain", "contentBytes": "dGhpcyBpcyAxc3QgYXR0YWNobWVudCBhcyB0ZXh0" },

@@ -63,6 +63,11 @@ module.exports = (srv) => {
             const whitelists_entries = await getWhiteLists(whitelists);
             const isAllowed = await checkRecipient(whitelists_entries, result.recipient);
 
+            //Process old data without type defined
+            if(result.type == null){
+                result.type = "Text";
+            }
+
             if (isAllowed) {
                 try {
                     //get attachment
@@ -80,7 +85,7 @@ module.exports = (srv) => {
                     return;
                 }
             } else {
-                req.error(`Error in sending mail: ${error.response.data.error.message}`)
+                req.error(`Error in sending mail: ${blockedMessage}`)
                 await updateStatus(mailrequests, result.ID, 'O', blockedMessage);
                 return;
             }
@@ -108,7 +113,6 @@ module.exports = (srv) => {
     //Note: let -> only in scope of block
     srv.on('mass_email', async (req) => {
         console.log('Mass email action');
-
         let emails = [];
 
         for (let recipientEntry of req.data.mailrequests.multiRecipient.entries()) {
@@ -117,8 +121,16 @@ module.exports = (srv) => {
                 sender: req.data.mailrequests.sender,
                 recipient: recipientEntry[1].email,
                 subject: req.data.mailrequests.subject,
+                type: "",
                 body: req.data.mailrequests.body
             };
+
+            //Email Content Type
+            if(req.data.mailrequests.type){
+                email.type = req.data.mailrequests.type
+            }else{
+                req.data.mailrequests.type = "Text"
+            }
 
             let query = INSERT.into(mailrequests).entries(email);
             let result = await cds.run(query);
