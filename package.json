@@ -14,12 +14,15 @@
         "wildcard-match": "^5.1.2"
     },
     "devDependencies": {
-        "@sap/ux-specification": "^1.100.3",
-        "sqlite3": "^5.0.2"
+        "@sap/ux-specification": "^1.102.9",
+        "sqlite3": "^5.0.2",
+        "rimraf": "^3.0.2"
     },
     "scripts": {
         "start": "cds run",
-        "undeploy": "cf undeploy mailservice --delete-services --delete-service-keys"
+        "undeploy": "cf undeploy mailservice --delete-services --delete-service-keys --delete-service-brokers",
+        "build": "rimraf resources mta_archives && mbt build --mtar archive",
+        "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
     },
     "eslintConfig": {
         "extends": "eslint:recommended",
@@ -49,7 +52,7 @@
     "cds": {
         "requires": {
             "db": {
-                "kind": "hana"
+                "kind": "sql"
             }
         },
         "hana": {
